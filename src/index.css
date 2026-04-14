@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: #0f172a;
+  color: #f1f5f9;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overscroll-behavior: none;
+}
+
+/* html5-qrcode overrides — remove white border that looks out of place on dark UI */
+#qr-reader {
+  border: none !important;
+  background: transparent !important;
+}
+#qr-reader__scan_region {
+  background: transparent !important;
+}
+#qr-reader__dashboard {
+  padding: 0 !important;
+  background: transparent !important;
+}
+#qr-reader__dashboard_section_swaplink {
+  display: none !important;
+}
