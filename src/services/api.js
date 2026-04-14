@@ -20,12 +20,6 @@ export async function login(email, password) {
 
 // ── Ticket validation ─────────────────────────────────────────────────────────
 
-/**
- * Validate a ticket by its ticket_code (e.g. CINE-ABC12345).
- * Calls POST /purchases/validate/{ticket_code} on booking-service.
- * Returns the validation result object from the backend.
- * Throws on network error; 4xx errors are returned as { error, status }.
- */
 export async function validateTicket(ticketCode) {
   try {
     const { data } = await api.post(`/purchases/tickets/${encodeURIComponent(ticketCode)}/validate`);
