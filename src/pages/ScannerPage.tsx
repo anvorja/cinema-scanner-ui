@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
-import { validateTicket } from '../services/api.js';
+import { validateTicket } from '../services/api';
 
 const QR_REGION_ID = 'cinema-qr-reader';
 
