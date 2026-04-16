@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './pages/LoginPage.jsx';
-import ScannerPage from './pages/ScannerPage.jsx';
+import LoginPage from './pages/LoginPage';
+import ScannerPage from './pages/ScannerPage';
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem('scanner_token');
