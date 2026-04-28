@@ -8,15 +8,3 @@
   from   = "/*"
   to     = "/index.html"
   status = 200
-
-# ── PRODUCCIÓN (rama main) ──────────────────────────────────────────────────────
-[context.production.environment]
-  VITE_API_BASE_URL = "https://infra-cinema-1.onrender.com/api/v1"
-
-# ── STAGING (rama staging) ─────────────────────────────────────────────────────
-[context.staging.environment]
-  VITE_API_BASE_URL = "https://infra-cinema-1.onrender.com/api/v1"
-
-# ── DEPLOY PREVIEW ─────────────────────────────────────────────────────────────
-[context.deploy-preview.environment]
-  VITE_API_BASE_URL = "https://infra-cinema-1.onrender.com/api/v1"
