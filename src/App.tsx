@@ -3,7 +3,7 @@ import LoginPage from './pages/LoginPage';
 import ScannerPage from './pages/ScannerPage';
 
 function PrivateRoute({ children }) {
-  const token = localStorage.getItem('scanner_token');
+  const token = sessionStorage.getItem('scanner_token');
   return token ? children : <Navigate to="/login" replace />;
 }
 

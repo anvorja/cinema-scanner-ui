@@ -24,8 +24,8 @@ export default function LoginPage() {
         return;
       }
 
-      localStorage.setItem('scanner_token', data.access_token);
-      localStorage.setItem('scanner_user', JSON.stringify(data.user));
+      sessionStorage.setItem('scanner_token', data.access_token);
+      sessionStorage.setItem('scanner_user', JSON.stringify(data.user));
       navigate('/', { replace: true });
     } catch (err) {
       const detail = err.response?.data?.detail || 'Credenciales incorrectas.';

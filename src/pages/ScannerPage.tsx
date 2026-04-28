@@ -5,6 +5,33 @@ import { validateTicket } from '../services/api';
 
 const QR_REGION_ID = 'cinema-qr-reader';
 
+// ── Audio + vibration feedback ─────────────────────────────────────────────────
+
+function playBeep(ok: boolean) {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    if (ok) {
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+      osc.start(); osc.stop(ctx.currentTime + 0.25);
+    } else {
+      osc.frequency.setValueAtTime(220, ctx.currentTime);
+      gain.gain.setValueAtTime(0.35, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.start(); osc.stop(ctx.currentTime + 0.4);
+    }
+  } catch { /* browser without AudioContext */ }
+  try {
+    navigator.vibrate?.(ok ? [80] : [100, 60, 100]);
+  } catch { /* ignore */ }
+}
+
 // ── Result display ─────────────────────────────────────────────────────────────
 
 function ValidationResult({ result, onReset }) {
@@ -73,10 +100,13 @@ function ValidationResult({ result, onReset }) {
     subtitle = result.detail || 'No se pudo validar la boleta.';
   }
 
-  // Ticket details from TicketResponse: { ticket_code, seat_number, status, created_at }
+  // Ticket details from TicketResponse
   const details = isValid && result.data ? [
-    result.data.ticket_code && { label: 'Código',   value: result.data.ticket_code },
-    result.data.seat_number && { label: 'Asiento',  value: result.data.seat_number },
+    result.data.movie_title  && { label: 'Película',  value: result.data.movie_title },
+    result.data.showtime     && { label: 'Función',   value: result.data.showtime },
+    result.data.room         && { label: 'Sala',      value: result.data.room },
+    result.data.seat_number  && { label: 'Asiento',   value: result.data.seat_number },
+    result.data.ticket_code  && { label: 'Código',    value: result.data.ticket_code },
   ].filter(Boolean) : [];
 
   return (
@@ -111,10 +141,11 @@ function ValidationResult({ result, onReset }) {
 
 export default function ScannerPage() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('scanner_user') || '{}');
+  const user = JSON.parse(sessionStorage.getItem('scanner_user') || '{}');
 
-  const scannerRef  = useRef(null);
-  const detectedRef = useRef(false);
+  const scannerRef    = useRef(null);
+  const detectedRef   = useRef(false);
+  const lastScanRef   = useRef(0);
 
   const [hasCam,         setHasCam]         = useState(false);
   const [camState,       setCamState]       = useState('idle'); // idle | starting | active | error
@@ -123,6 +154,9 @@ export default function ScannerPage() {
   const [manualCode,     setManualCode]     = useState('');
   const [validating,     setValidating]     = useState(false);
   const [result,         setResult]         = useState(null);
+  const [resetSecs,      setResetSecs]      = useState<number | null>(null);
+  const resetTimerRef  = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [stats,          setStats]          = useState({ valid: 0, rejected: 0 });
 
   // Detect camera presence
   useEffect(() => {
@@ -143,11 +177,34 @@ export default function ScannerPage() {
   const validate = useCallback(async (code) => {
     const trimmed = code.trim();
     if (!trimmed) return;
+    const now = Date.now();
+    if (now - lastScanRef.current < 1000) return;
+    lastScanRef.current = now;
     setValidating(true);
     await stopCamera();
     const res = await validateTicket(trimmed);
+    playBeep(res.ok);
     setResult(res);
+    setStats(s => res.ok ? { ...s, valid: s.valid + 1 } : { ...s, rejected: s.rejected + 1 });
     setValidating(false);
+    // Start 3-second auto-reset countdown
+    const TOTAL = 3;
+    setResetSecs(TOTAL);
+    let remaining = TOTAL;
+    resetTimerRef.current = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        clearInterval(resetTimerRef.current!);
+        resetTimerRef.current = null;
+        setResetSecs(null);
+        setResult(null);
+        setManualCode('');
+        detectedRef.current = false;
+        setWantStart(true);
+      } else {
+        setResetSecs(remaining);
+      }
+    }, 1000);
   }, [stopCamera]);
 
   // Signal-based camera start (renders div first, then starts scanner in effect)
@@ -197,16 +254,55 @@ export default function ScannerPage() {
   // Stop camera on unmount
   useEffect(() => () => { stopCamera(); }, [stopCamera]);
 
-  const handleReset = () => {
+  // Auto-logout after 30 min of inactivity
+  useEffect(() => {
+    const TIMEOUT = 30 * 60 * 1000;
+    let timer = setTimeout(() => {
+      sessionStorage.removeItem('scanner_token');
+      sessionStorage.removeItem('scanner_user');
+      window.location.replace('/login');
+    }, TIMEOUT);
+    const reset = () => { clearTimeout(timer); timer = setTimeout(() => {
+      sessionStorage.removeItem('scanner_token');
+      sessionStorage.removeItem('scanner_user');
+      window.location.replace('/login');
+    }, TIMEOUT); };
+    const events = ['pointerdown', 'keydown', 'touchstart'] as const;
+    events.forEach(e => document.addEventListener(e, reset));
+    return () => { clearTimeout(timer); events.forEach(e => document.removeEventListener(e, reset)); };
+  }, []);
+
+  // Keep screen on while the scanner is open
+  useEffect(() => {
+    if (!('wakeLock' in navigator)) return;
+    let lock: WakeLockSentinel | null = null;
+    const acquire = () => (navigator as any).wakeLock.request('screen')
+      .then((l: WakeLockSentinel) => { lock = l; })
+      .catch(() => {});
+    acquire();
+    document.addEventListener('visibilitychange', acquire);
+    return () => {
+      document.removeEventListener('visibilitychange', acquire);
+      lock?.release();
+    };
+  }, []);
+
+  const handleReset = (restartCam = true) => {
+    if (resetTimerRef.current) {
+      clearInterval(resetTimerRef.current);
+      resetTimerRef.current = null;
+    }
+    setResetSecs(null);
     setResult(null);
     setManualCode('');
     detectedRef.current = false;
+    if (restartCam && hasCam) setWantStart(true);
   };
 
   const handleLogout = () => {
     stopCamera();
-    localStorage.removeItem('scanner_token');
-    localStorage.removeItem('scanner_user');
+    sessionStorage.removeItem('scanner_token');
+    sessionStorage.removeItem('scanner_user');
     navigate('/login', { replace: true });
   };
 
@@ -233,6 +329,15 @@ export default function ScannerPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Session counters */}
+          <div className="flex items-center gap-1.5 text-xs font-mono">
+            <span className="bg-green-900/50 text-green-400 border border-green-800 px-2 py-0.5 rounded-md">
+              ✓ {stats.valid}
+            </span>
+            <span className="bg-red-900/50 text-red-400 border border-red-800 px-2 py-0.5 rounded-md">
+              ✗ {stats.rejected}
+            </span>
+          </div>
           <span className="text-slate-400 text-xs hidden sm:block">{user.email}</span>
           <button
             onClick={handleLogout}
@@ -251,7 +356,22 @@ export default function ScannerPage() {
 
         {/* Validation result */}
         {result && !validating && (
-          <ValidationResult result={result} onReset={handleReset} />
+          <>
+            <ValidationResult result={result} onReset={handleReset} />
+            {resetSecs !== null && (
+              <div className="w-full space-y-1">
+                <div className="h-1.5 w-full bg-slate-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-linear"
+                    style={{ width: `${(resetSecs / 3) * 100}%` }}
+                  />
+                </div>
+                <p className="text-center text-slate-500 text-xs">
+                  Siguiente escaneo en {resetSecs}s…
+                </p>
+              </div>
+            )}
+          </>
         )}
 
         {/* Loading spinner */}

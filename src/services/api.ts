@@ -6,10 +6,23 @@ const api = axios.create({ baseURL: BASE_URL });
 
 // Attach Bearer token on every request
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('scanner_token');
+  const token = sessionStorage.getItem('scanner_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
+
+// Redirect to login on expired/invalid token
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
+      sessionStorage.removeItem('scanner_token');
+      sessionStorage.removeItem('scanner_user');
+      window.location.replace('/login');
+    }
+    return Promise.reject(err);
+  }
+);
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
