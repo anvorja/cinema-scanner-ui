@@ -1,0 +1,32 @@
+node_modules
+
+# Archivos de configuración del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de entorno
+.env
+.env.*
+
+# Archivos temporales y logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git y otros sistemas de control de versiones
+.git
+.gitignore
+
+# Tests, documentación o herramientas de desarrollo (opcional)
+tests/
+coverage/
+docs/
+
+# Archivos del build local (si los hay)
+dist
+build
