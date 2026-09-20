@@ -66,6 +66,10 @@ npm run dev   # http://localhost:5200
 sección "Desarrollar en local" de `../WORKFLOW.md` (no se repite aquí el
 procedimiento).
 
+**Probando desde el celular en la misma red** (para escanear QR de compras
+locales, no producción): `../WORKFLOW.md` sección 3. Si la cámara no se
+activa por ser HTTP en vez de HTTPS, ver `MANUAL-CAMARA-LAN.md`.
+
 ## Build y despliegue
 
 `Dockerfile` construye con Vite y sirve el resultado con `nginx` (puerto 5200,
