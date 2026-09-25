@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
-import { validateTicket } from '../services/api';
+import { LOGIN_URL, validateTicket } from '../services/api';
 
 const QR_REGION_ID = 'cinema-qr-reader';
 
@@ -260,12 +260,12 @@ export default function ScannerPage() {
     let timer = setTimeout(() => {
       sessionStorage.removeItem('scanner_token');
       sessionStorage.removeItem('scanner_user');
-      window.location.replace('/login');
+      window.location.replace(LOGIN_URL);
     }, TIMEOUT);
     const reset = () => { clearTimeout(timer); timer = setTimeout(() => {
       sessionStorage.removeItem('scanner_token');
       sessionStorage.removeItem('scanner_user');
-      window.location.replace('/login');
+      window.location.replace(LOGIN_URL);
     }, TIMEOUT); };
     const events = ['pointerdown', 'keydown', 'touchstart'] as const;
     events.forEach(e => document.addEventListener(e, reset));

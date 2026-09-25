@@ -48,9 +48,13 @@ resuelve en build time (Vite la inyecta como constante), así que cambiarla
 requiere reconstruir, no solo reiniciar.
 
 - Local nativo: `.env` (`http://localhost:8090/api/v1`)
-- Local en Docker: se pasa como build arg (`VITE_API_BASE_URL`/`SCANNER_API_URL`
-  en `../infra-cinema/docker-compose.yml`) — necesario para el flujo de
-  "probar E2E desde el celular con IP local" de `../WORKFLOW.md`.
+- Local en Docker: `/api/v1` (mismo origen que Traefik) como build arg en
+  `../infra-cinema/docker-compose.yml`; sirve igual en localhost, la IP local
+  y el túnel de ngrok.
+
+`VITE_BASE_PATH` (opcional, build time) es la ruta donde se sirve la app: `/`
+por defecto (Netlify, `npm run dev`) y `/scanner/` en Docker, detrás de
+Traefik (`http://localhost:8090/scanner/`).
 - Producción: `.env.production`, usado por el build de Netlify.
 
 ## Correr en local
@@ -62,7 +66,7 @@ npm install
 npm run dev   # http://localhost:5200
 ```
 
-**Vía Docker**, como parte del stack completo — ver `../infra-cinema` y la
+**Vía Docker** (`http://localhost:8090/scanner/`), como parte del stack completo — ver `../infra-cinema` y la
 sección "Desarrollar en local" de `../WORKFLOW.md` (no se repite aquí el
 procedimiento).
 
@@ -72,8 +76,9 @@ activa por ser HTTP en vez de HTTPS, ver `MANUAL-CAMARA-LAN.md`.
 
 ## Build y despliegue
 
-`Dockerfile` construye con Vite y sirve el resultado con `nginx` (puerto 5200,
-`nginx.conf` en esta carpeta) — usado por `docker-compose` local. En
+`Dockerfile` construye con Vite y sirve el resultado con `nginx` (puerto 5200
+dentro de la red de Docker, `nginx.conf` en esta carpeta) — usado por
+`docker-compose` local, donde Traefik lo publica en `/scanner/`. En
 producción, Netlify construye directo desde `netlify.toml`
 (`npm run build` → publica `dist/`), sin pasar por este `Dockerfile`. Flujo de
 ramas y contextos de despliegue: `../WORKFLOW.md`.
