@@ -7,9 +7,14 @@ function PrivateRoute({ children }) {
   return token ? children : <Navigate to="/login" replace />;
 }
 
+// Ruta base sin la barra final ("/scanner"): así react-router acepta /scanner,
+// /scanner/ y /scanner/login. Con "/scanner/" la URL sin barra queda en blanco.
+// En Netlify y `npm run dev` la base es "/" y queda "" (equivale a la raíz).
+const ROUTER_BASENAME = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 export default function App() {
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <BrowserRouter basename={ROUTER_BASENAME}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route
