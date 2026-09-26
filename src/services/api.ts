@@ -4,6 +4,9 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8090/api
 
 const api = axios.create({ baseURL: BASE_URL });
 
+// Pantalla de login respetando la ruta base (ej. /scanner/login detrás de Traefik).
+export const LOGIN_URL = `${import.meta.env.BASE_URL}login`;
+
 // Attach Bearer token on every request
 api.interceptors.request.use((config) => {
   const token = sessionStorage.getItem('scanner_token');
@@ -18,7 +21,7 @@ api.interceptors.response.use(
     if (err.response?.status === 401) {
       sessionStorage.removeItem('scanner_token');
       sessionStorage.removeItem('scanner_user');
-      window.location.replace('/login');
+      window.location.replace(LOGIN_URL);
     }
     return Promise.reject(err);
   }

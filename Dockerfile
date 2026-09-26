@@ -1,4 +1,4 @@
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -9,6 +9,9 @@ COPY . .
 
 ARG VITE_API_BASE_URL=http://localhost:8090/api/v1
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+# Ruta base de la app ('/scanner/' cuando se sirve detrás de Traefik).
+ARG VITE_BASE_PATH=/
+ENV VITE_BASE_PATH=$VITE_BASE_PATH
 
 RUN npm run build
 
