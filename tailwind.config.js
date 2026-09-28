@@ -4,6 +4,28 @@ export default {
   theme: {
     extend: {
       colors: {
+        board: {
+          ground: 'rgb(var(--b-ground) / <alpha-value>)',
+          panel: 'rgb(var(--b-panel) / <alpha-value>)',
+          panel2: 'rgb(var(--b-panel2) / <alpha-value>)',
+          line: 'rgb(var(--b-line) / <alpha-value>)',
+          line2: 'rgb(var(--b-line2) / <alpha-value>)',
+          ink: 'rgb(var(--b-ink) / <alpha-value>)',
+          ink2: 'rgb(var(--b-ink2) / <alpha-value>)',
+          mute: 'rgb(var(--b-mute) / <alpha-value>)',
+          amber: 'rgb(var(--b-amber) / <alpha-value>)',
+          amberpress: 'rgb(var(--b-amberpress) / <alpha-value>)',
+          amberink: 'rgb(var(--b-amberink) / <alpha-value>)',
+          onamber: 'rgb(var(--b-onamber) / <alpha-value>)',
+          alarm: 'rgb(var(--b-alarm) / <alpha-value>)',
+          alarmink: 'rgb(var(--b-alarmink) / <alpha-value>)',
+          ok: 'rgb(var(--b-ok) / <alpha-value>)',
+          okink: 'rgb(var(--b-okink) / <alpha-value>)',
+          sold: 'rgb(var(--b-sold) / <alpha-value>)',
+          alarmbg: 'rgb(var(--b-alarmbg) / <alpha-value>)',
+          okbg: 'rgb(var(--b-okbg) / <alpha-value>)',
+          map: 'rgb(var(--b-map) / <alpha-value>)',
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -37,6 +59,11 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+      },
+      fontFamily: {
+        board: ['"Barlow Condensed"', '"Arial Narrow"', 'sans-serif'],
+        data: ['B612', 'system-ui', 'sans-serif'],
+        sans: ['Barlow', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         lg: 'var(--radius)',
