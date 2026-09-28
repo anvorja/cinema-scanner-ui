@@ -1,30 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=B612:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-    --radius: 0.75rem;
-  }
+/* Tokens del tablero (mismo sistema que cinema_ui): canales RGB para usar opacidad.
+   Oscuro por defecto; body.board-light activa el tema claro. */
+:root {
+  --b-ground: 12 12 13;
+  --b-panel: 21 21 23;
+  --b-panel2: 29 29 32;
+  --b-line: 44 44 48;
+  --b-line2: 70 70 76;
+  --b-ink: 244 241 232;
+  --b-ink2: 195 191 178;
+  --b-mute: 143 139 128;
+  --b-amber: 242 183 5;
+  --b-amberpress: 217 163 4;
+  --b-amberink: 242 183 5;
+  --b-onamber: 12 12 13;
+  --b-alarm: 217 65 43;
+  --b-alarmink: 240 100 77;
+  --b-ok: 123 216 143;
+  --b-okink: 123 216 143;
+  --b-sold: 58 26 21;
+  --b-alarmbg: 29 18 16;
+  --b-okbg: 16 26 19;
+  --b-map: 16 16 17;
+
+  --background: 240 4% 5%;
+  --foreground: 45 33% 94%;
+  --card: 240 4% 8%;
+  --card-foreground: 45 33% 94%;
+  --popover: 240 4% 8%;
+  --popover-foreground: 45 33% 94%;
+  --primary: 44 96% 48%;
+  --primary-foreground: 240 4% 5%;
+  --secondary: 240 4% 12%;
+  --secondary-foreground: 45 33% 94%;
+  --muted: 240 4% 12%;
+  --muted-foreground: 45 6% 58%;
+  --accent: 240 4% 14%;
+  --accent-foreground: 45 33% 94%;
+  --destructive: 8 70% 50%;
+  --destructive-foreground: 45 33% 94%;
+  --border: 240 4% 18%;
+  --input: 240 4% 18%;
+  --ring: 44 96% 48%;
+  --radius: 0.25rem;
+}
+
+body.board-light {
+  --b-ground: 242 241 236;
+  --b-panel: 255 255 255;
+  --b-panel2: 233 231 224;
+  --b-line: 214 211 202;
+  --b-line2: 140 136 121;
+  --b-ink: 20 20 22;
+  --b-ink2: 61 60 64;
+  --b-mute: 102 100 92;
+  --b-amberink: 138 100 0;
+  --b-alarmink: 179 50 29;
+  --b-okink: 29 122 56;
+  --b-sold: 243 214 208;
+  --b-alarmbg: 251 232 228;
+  --b-okbg: 226 243 229;
+  --b-map: 236 235 229;
+  color-scheme: light;
 }
 
 * {
@@ -32,24 +74,52 @@
 }
 
 body {
-  background-color: #0f172a;
-  color: #f1f5f9;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: rgb(var(--b-ground));
+  color: rgb(var(--b-ink));
+  font-family: 'Barlow', system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
+  color-scheme: dark;
+}
+body.board-light { color-scheme: light; }
+
+::selection { background: rgb(var(--b-amber)); color: rgb(var(--b-onamber)); }
+:focus-visible { outline: 3px solid rgb(var(--b-amber)); outline-offset: 2px; }
+
+.font-board { font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; text-transform: uppercase; letter-spacing: 0.02em; }
+.font-data { font-family: 'B612', system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+
+/* Aleta split-flap (título del login) */
+.flap { display: inline-flex; flex-wrap: wrap; gap: 3px 0; perspective: 600px; }
+.flap-word { display: inline-flex; gap: 2px; margin-right: .3em; }
+.flap-tile {
+  position: relative; display: inline-block; min-width: .6em; text-align: center;
+  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-weight: 700; text-transform: uppercase; line-height: 1.06;
+  padding: .04em .06em 0; border-radius: 3px;
+  background: #19191b; color: #f4f1e8;
+  box-shadow: 0 2px 0 #050505;
+}
+.flap-tile::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: #050505; }
+.flap-tile.is-flipping { animation: flap-drop 90ms cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes flap-drop { from { transform: rotateX(-70deg); opacity: .5; } to { transform: rotateX(0); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
-/* html5-qrcode overrides — remove white border that looks out of place on dark UI */
-#qr-reader {
+/* html5-qrcode overrides — sin borde blanco sobre la interfaz oscura */
+#qr-reader, #cinema-qr-reader {
   border: none !important;
   background: transparent !important;
 }
-#qr-reader__scan_region {
+#qr-reader__scan_region, #cinema-qr-reader__scan_region {
   background: transparent !important;
 }
-#qr-reader__dashboard {
+#qr-reader__dashboard, #cinema-qr-reader__dashboard {
   padding: 0 !important;
   background: transparent !important;
 }
-#qr-reader__dashboard_section_swaplink {
+#qr-reader__dashboard_section_swaplink, #cinema-qr-reader__dashboard_section_swaplink {
   display: none !important;
 }

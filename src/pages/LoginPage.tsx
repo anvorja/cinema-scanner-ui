@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/api';
+import FlapText from '../components/FlapText';
+import ThemeToggle from '../components/ThemeToggle';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -35,62 +37,55 @@ export default function LoginPage() {
     }
   };
 
+  const field = 'w-full min-h-[52px] px-4 py-3 rounded-[3px] bg-board-panel border border-board-line2 text-board-ink placeholder-board-mute focus:outline-none focus:border-board-amber text-base';
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-900 px-4">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8">
+      <div className="absolute right-3 top-3"><ThemeToggle /></div>
       <div className="w-full max-w-sm">
 
-        {/* Logo / header */}
-        <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <svg className="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round"
-                d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" />
-              <path strokeLinecap="round" strokeLinejoin="round"
-                d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Cinema Scanner</h1>
-          <p className="text-slate-400 text-sm mt-1">Validación de boletas en entrada</p>
+        <div className="mb-10">
+          <p className="font-board text-4xl font-bold tracking-[0.08em]">CINEMA<span className="text-board-amberink">PLUS</span></p>
+          <h1 className="mt-4">
+            <FlapText text="Escáner" size="clamp(2.5rem, 12vw, 3.5rem)" />
+          </h1>
+          <p className="mt-3 text-board-ink2 text-base">Validación de boletas en la entrada</p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <label htmlFor="email" className="block font-data text-[11px] font-bold uppercase text-board-mute mb-1.5">
               Correo electrónico
             </label>
             <input
+              id="email"
               type="email"
               required
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="empleado@cinema.com"
-              className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700
-                         text-white placeholder-slate-500 focus:outline-none focus:border-blue-500
-                         focus:ring-1 focus:ring-blue-500 transition-colors text-sm"
+              className={field}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <label htmlFor="password" className="block font-data text-[11px] font-bold uppercase text-board-mute mb-1.5">
               Contraseña
             </label>
             <input
+              id="password"
               type="password"
               required
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700
-                         text-white placeholder-slate-500 focus:outline-none focus:border-blue-500
-                         focus:ring-1 focus:ring-blue-500 transition-colors text-sm"
+              className={field}
             />
           </div>
 
           {error && (
-            <div className="bg-red-900/40 border border-red-700/60 text-red-300 rounded-xl px-4 py-3 text-sm">
+            <div role="alert" className="bg-board-alarmbg border border-board-alarm text-board-alarmink rounded-[3px] px-4 py-3 text-base">
               {error}
             </div>
           )}
@@ -98,15 +93,15 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700
-                       text-white font-semibold rounded-xl transition-colors
-                       disabled:opacity-50 disabled:cursor-not-allowed text-sm mt-2"
+            className="w-full min-h-[56px] bg-board-amber hover:bg-board-amberpress active:translate-y-px
+                       text-board-onamber font-board text-xl font-bold tracking-[0.08em] uppercase rounded-[3px]
+                       disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+            {loading ? 'Iniciando sesión…' : 'Iniciar sesión'}
           </button>
         </form>
 
-        <p className="text-center text-slate-600 text-xs mt-8">
+        <p className="mt-8 font-data text-xs text-board-mute">
           Cinema · Control de acceso
         </p>
       </div>
